@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"songtomtom/gqlgen-apollo-subscriptions/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph"
 )
 
 const defaultPort = "8080"

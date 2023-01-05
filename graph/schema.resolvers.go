@@ -7,7 +7,8 @@ package graph
 import (
 	"context"
 	"fmt"
-	"songtomtom/gqlgen-apollo-subscriptions/graph/model"
+
+	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
