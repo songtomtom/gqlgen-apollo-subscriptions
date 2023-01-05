@@ -1,28 +1,29 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
-}
-
+"""
+Make sure you have at least something in your `Query` type.
+If you don't have a query the playground will be unable
+to introspect your schema!
+"""
 type Query {
-  todos: [Todo!]!
+  placeholder: String
 }
 
-input NewTodo {
-  text: String!
-  userId: String!
+"""
+`Time` is a simple type only containing the current time as
+a unix epoch timestamp and a string timestamp.
+"""
+type Time {
+  unixTime: Int!
+  timeStamp: String!
 }
 
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
+"""
+`Subscription` is where all the subscriptions your clients can
+request. You can use Schema Directives like normal to restrict
+access.
+"""
+type Subscription {
+  """
+  `currentTime` will return a stream of `Time` objects.
+  """
+  currentTime: Time!
 }
