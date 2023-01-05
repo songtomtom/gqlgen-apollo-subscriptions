@@ -1,0 +1,12 @@
+type Query {
+  placeholder: String
+}
+
+type Time {
+  unixTime: Int!
+  timeStamp: String!
+}
+
+type Subscription {
+  currentTime: Time!
+}
