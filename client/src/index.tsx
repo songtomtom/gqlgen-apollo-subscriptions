@@ -13,11 +13,11 @@ const root = ReactDOM.createRoot(
 );
 
 const httpLink = new HttpLink({
-    uri: 'http://localhost:4000/graphql'
+    uri: 'http://localhost:8080/graphql'
 });
 
 const wsLink = new GraphQLWsLink(createClient({
-    url: 'ws://localhost:4000/subscriptions',
+    url: 'ws://localhost:8080/subscriptions',
 }));
 
 // The split function takes three parameters:
@@ -47,7 +47,6 @@ const client = new ApolloClient({
 root.render(
   <React.StrictMode>
       <ApolloProvider client={client}>
-
           <App />
       </ApolloProvider>
   </React.StrictMode>

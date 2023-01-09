@@ -1,26 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { gql, useSubscription } from '@apollo/client';
+
+
+const CURRENT_TIME_SUBSCRIPTION = gql`
+    subscription OnCurrentTime {
+        currentTime {
+            unixTime
+            timeStamp
+        }
+    }
+`;
+
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const { data, loading } = useSubscription(CURRENT_TIME_SUBSCRIPTION);
+  console.log(data)
+  return <h4>New current time: {!loading && data.currentTime.timeStamp}</h4>;
 }
 
 export default App;

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"os"
@@ -24,8 +25,18 @@ func main() {
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 	http.HandleFunc("/subscriptions", func(w http.ResponseWriter, r *http.Request) {
-		_srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
-		_srv.AddTransport(&transport.Websocket{}) // <---- This is the important part!
+		_srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+		_srv.AddTransport(
+			&transport.Websocket{
+				Upgrader: websocket.Upgrader{
+					CheckOrigin: func(r *http.Request) bool {
+						return true
+					},
+					ReadBufferSize:  1024,
+					WriteBufferSize: 1024,
+				},
+			},
+		) // <---- This is the important part!
 		_srv.ServeHTTP(w, r)
 	})
 
