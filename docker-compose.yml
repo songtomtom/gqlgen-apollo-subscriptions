@@ -13,6 +13,5 @@ services:
       MYSQL_DATABASE: test
     ports:
       - 33006:3306
-
 volumes:
   todo-mysql-data:
