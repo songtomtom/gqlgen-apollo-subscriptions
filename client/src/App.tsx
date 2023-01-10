@@ -16,7 +16,6 @@ const CURRENT_TIME_SUBSCRIPTION = gql`
 
 function App() {
   const { data, loading } = useSubscription(CURRENT_TIME_SUBSCRIPTION);
-  console.log(data)
   return <h4>New current time: {!loading && data.currentTime.timeStamp}</h4>;
 }
 
