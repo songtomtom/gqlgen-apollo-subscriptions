@@ -1,29 +1,27 @@
-"""
-Make sure you have at least something in your `Query` type.
-If you don't have a query the playground will be unable
-to introspect your schema!
-"""
+type Post {
+    id: ID!
+}
+
+type Comment {
+    id: ID!
+    postId: ID!
+    content: String!
+}
+
 type Query {
-  placeholder: String
+    comments: [Comment]!
 }
 
-"""
-`Time` is a simple type only containing the current time as
-a unix epoch timestamp and a string timestamp.
-"""
-type Time {
-  unixTime: Int!
-  timeStamp: String!
+type Mutation {
+    createPost:Post!
+    createComment(input: CreateCommentInput!): Comment!
 }
 
-"""
-`Subscription` is where all the subscriptions your clients can
-request. You can use Schema Directives like normal to restrict
-access.
-"""
 type Subscription {
-  """
-  `currentTime` will return a stream of `Time` objects.
-  """
-  currentTime: Time!
+    commentAdded:Comment!
+}
+
+input CreateCommentInput{
+    postId: ID!
+    content: String!
 }

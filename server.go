@@ -4,8 +4,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -16,33 +14,15 @@ import (
 
 const defaultPort = "8080"
 
-type (
-	Post struct {
-		gorm.Model
-	}
-
-	Comment struct {
-		gorm.Model
-		PostID  int
-		Content string
-	}
-)
-
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
-	dsn := "test:test@tcp(127.0.0.1:33006)/test?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	_, err := open("test", "test", "127.0.0.1", "33006", "test")
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
-	}
-
-	if err = db.AutoMigrate(&Post{}, &Comment{}); err != nil {
-		log.Fatalf("failed to auto migration schema: %v", err)
+		log.Fatal(err)
 	}
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
