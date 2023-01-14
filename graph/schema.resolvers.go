@@ -8,21 +8,43 @@ import (
 	"context"
 	"fmt"
 	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph/model"
+	"time"
 )
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context) (*model.Post, error) {
-	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
+	_, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	post := model.Post{}
+	r.DB.Create(post)
+
+	return &post, nil
 }
 
 // CreateComment is the resolver for the createComment field.
 func (r *mutationResolver) CreateComment(ctx context.Context, input model.CreateCommentInput) (*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: CreateComment - createComment"))
+	_, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	comment := model.Comment{
+		PostID:  input.PostID,
+		Content: input.Content,
+	}
+	r.DB.Create(comment)
+
+	return &comment, nil
 }
 
 // Comments is the resolver for the comments field.
 func (r *queryResolver) Comments(ctx context.Context) ([]*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: Comments - comments"))
+	_, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	var comments []*model.Comment
+	r.DB.Find(&comments)
+
+	return comments, nil
 }
 
 // CommentAdded is the resolver for the commentAdded field.
