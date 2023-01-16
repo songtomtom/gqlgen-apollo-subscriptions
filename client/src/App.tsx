@@ -1,6 +1,8 @@
-import React from 'react';
-import './App.css';
+import React, { ChangeEvent, useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
+
+import './App.css';
+
 
 const CREATE_POST = gql`
   mutation CreatePost($input: CreatePostInput!) {
@@ -30,47 +32,66 @@ const LIST_COMMENTS = gql`
   }
 `;
 
-const POST_ID = 'fe440985-3dad-4f47-968b-41668ca7f03c';
-
 function App() {
-  const [createPost, { data: post }] = useMutation(CREATE_POST, {
-    variables: { postId: POST_ID },
+  const [id, setId] = useState<string>('songtomtom');
+  const [content, setContent] = useState<string>('Hello~!');
+
+  const [createPost] = useMutation(CREATE_POST, {
+    variables: { input: { id } },
   });
-  const [createComment, { data: comment }] = useMutation(CREATE_COMMENT, {
-    variables: { postId: POST_ID },
+  const [createComment] = useMutation(CREATE_COMMENT, {
+    variables: { input: { postId: id, content } },
+  });
+  const { data, loading } = useQuery(LIST_COMMENTS, {
+    variables: { where: { postId: id } },
   });
 
-  const { data } = useQuery(LIST_COMMENTS, {
-    variables: { postId: POST_ID },
-  });
+  // console.log('comments: ', data.comments);
 
-  console.log('comments: ', data);
-
-  const onCreatePost = async () => {
+  const onClickCreatePost = async () => {
     const { data } = await createPost();
     if (data) {
-      console.log('creat post: ', data);
+      // Do something
     }
   };
 
-  const onCreateComments = async () => {
+  const onClickCreateComment = async () => {
     const { data } = await createComment();
     if (data) {
-      console.log('creat comment: ', data);
+      // Do something
     }
+  };
+
+  const onChangeId = (e: ChangeEvent<HTMLInputElement>) => {
+    setId(e.target.value);
+  };
+
+  const onChangeContent = (e: ChangeEvent<HTMLInputElement>) => {
+    setContent(e.target.value);
   };
 
   return (
     <div>
-      <button onClick={onCreatePost}>create post</button>
-      <button onClick={onCreateComments}>create comment</button>
-      <li>
-        {data &&
-          data.map((item: any) => {
-            console.log(item);
-            return <ul>{item.id}</ul>;
+      <div>
+        <input type="text" onChange={onChangeId} value={id} />
+        id
+        <br />
+        <input type="text" onChange={onChangeContent} value={content} />
+        content
+      </div>
+
+      <button onClick={onClickCreatePost}>create post</button>
+      <button onClick={onClickCreateComment}>create comment</button>
+      <ul>
+        {!loading &&
+          data.comments.map((item: any, index: number) => {
+            return (
+              <li key={index}>
+                <small>{item.postId}</small>: <strong>{item.content}</strong>
+              </li>
+            );
           })}
-      </li>
+      </ul>
     </div>
   );
 }
