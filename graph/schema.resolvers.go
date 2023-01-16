@@ -14,12 +14,12 @@ import (
 )
 
 // CreatePost is the resolver for the createPost field.
-func (r *mutationResolver) CreatePost(ctx context.Context) (*model.Post, error) {
+func (r *mutationResolver) CreatePost(ctx context.Context, input model.CreatePostInput) (*model.Post, error) {
 	_, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	post := model.Post{
-		ID: uuid.UUIDv4(),
+		ID: input.ID,
 	}
 	r.DB.Create(post)
 

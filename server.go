@@ -4,6 +4,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
+	"github.com/rs/cors"
 	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,12 +36,18 @@ func main() {
 		log.Fatalf("failed to auto migration schema: %v", err)
 	}
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.HandleFunc("/query", query(db))
-	http.HandleFunc("/subscriptions", subscription(db))
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+
+	mux := http.NewServeMux()
+
+	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	mux.HandleFunc("/query", query(db))
+	mux.HandleFunc("/subscriptions", subscription(db))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, c.Handler(mux)))
 }
 
 func query(db *gorm.DB) http.HandlerFunc {

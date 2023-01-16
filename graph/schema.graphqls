@@ -13,12 +13,16 @@ type Query {
 }
 
 type Mutation {
-    createPost:Post!
+    createPost(input: CreatePostInput!):Post! # 수정
     createComment(input: CreateCommentInput!): Comment!
 }
 
 type Subscription {
     commentAdded:Comment!
+}
+
+input CreatePostInput{ # 추가
+    id: ID!
 }
 
 input CreateCommentInput{

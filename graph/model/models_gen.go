@@ -9,13 +9,16 @@ type Comment struct {
 }
 
 type CommentsWhere struct {
-	// 유저 프로필 아이디
 	PostID string `json:"postId"`
 }
 
 type CreateCommentInput struct {
 	PostID  string `json:"postId"`
 	Content string `json:"content"`
+}
+
+type CreatePostInput struct {
+	ID string `json:"id"`
 }
 
 type Post struct {
