@@ -63,7 +63,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Comments func(childComplexity int) int
+		Comments func(childComplexity int, where model.CommentsWhere) int
 	}
 
 	Subscription struct {
@@ -76,7 +76,7 @@ type MutationResolver interface {
 	CreateComment(ctx context.Context, input model.CreateCommentInput) (*model.Comment, error)
 }
 type QueryResolver interface {
-	Comments(ctx context.Context) ([]*model.Comment, error)
+	Comments(ctx context.Context, where model.CommentsWhere) ([]*model.Comment, error)
 }
 type SubscriptionResolver interface {
 	CommentAdded(ctx context.Context) (<-chan *model.Comment, error)
@@ -149,7 +149,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Comments(childComplexity), true
+		args, err := ec.field_Query_comments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Comments(childComplexity, args["where"].(model.CommentsWhere)), true
 
 	case "Subscription.commentAdded":
 		if e.complexity.Subscription.CommentAdded == nil {
@@ -166,6 +171,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCommentsWhere,
 		ec.unmarshalInputCreateCommentInput,
 	)
 	first := true
@@ -290,6 +296,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_comments_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CommentsWhere
+	if tmp, ok := rawArgs["where"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
+		arg0, err = ec.unmarshalNCommentsWhere2githubᚗcomᚋsongtomtomᚋgqlgenᚑapolloᚑsubscriptionsᚋgraphᚋmodelᚐCommentsWhere(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["where"] = arg0
 	return args, nil
 }
 
@@ -632,7 +653,7 @@ func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Comments(rctx)
+		return ec.resolvers.Query().Comments(rctx, fc.Args["where"].(model.CommentsWhere))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -666,6 +687,17 @@ func (ec *executionContext) fieldContext_Query_comments(ctx context.Context, fie
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_comments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -2638,6 +2670,34 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCommentsWhere(ctx context.Context, obj interface{}) (model.CommentsWhere, error) {
+	var it model.CommentsWhere
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"postId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "postId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
+			it.PostID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateCommentInput(ctx context.Context, obj interface{}) (model.CreateCommentInput, error) {
 	var it model.CreateCommentInput
 	asMap := map[string]interface{}{}
@@ -3268,6 +3328,11 @@ func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋsongtomtomᚋgqlge
 		return graphql.Null
 	}
 	return ec._Comment(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCommentsWhere2githubᚗcomᚋsongtomtomᚋgqlgenᚑapolloᚑsubscriptionsᚋgraphᚋmodelᚐCommentsWhere(ctx context.Context, v interface{}) (model.CommentsWhere, error) {
+	res, err := ec.unmarshalInputCommentsWhere(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateCommentInput2githubᚗcomᚋsongtomtomᚋgqlgenᚑapolloᚑsubscriptionsᚋgraphᚋmodelᚐCreateCommentInput(ctx context.Context, v interface{}) (model.CreateCommentInput, error) {

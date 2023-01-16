@@ -7,8 +7,10 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph/model"
 	"time"
+
+	"github.com/dgryski/trifles/uuid"
+	"github.com/songtomtom/gqlgen-apollo-subscriptions/graph/model"
 )
 
 // CreatePost is the resolver for the createPost field.
@@ -16,7 +18,9 @@ func (r *mutationResolver) CreatePost(ctx context.Context) (*model.Post, error) 
 	_, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	post := model.Post{}
+	post := model.Post{
+		ID: uuid.UUIDv4(),
+	}
 	r.DB.Create(post)
 
 	return &post, nil
@@ -28,6 +32,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.Create
 	defer cancel()
 
 	comment := model.Comment{
+		ID:      uuid.UUIDv4(),
 		PostID:  input.PostID,
 		Content: input.Content,
 	}
@@ -37,12 +42,12 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.Create
 }
 
 // Comments is the resolver for the comments field.
-func (r *queryResolver) Comments(ctx context.Context) ([]*model.Comment, error) {
+func (r *queryResolver) Comments(ctx context.Context, where model.CommentsWhere) ([]*model.Comment, error) {
 	_, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	var comments []*model.Comment
-	r.DB.Find(&comments)
+	r.DB.Where("post_id = ?", where.PostID).Find(&comments)
 
 	return comments, nil
 }

@@ -9,7 +9,7 @@ type Comment {
 }
 
 type Query {
-    comments: [Comment]!
+    comments(where:CommentsWhere!): [Comment]!
 }
 
 type Mutation {
@@ -24,4 +24,8 @@ type Subscription {
 input CreateCommentInput{
     postId: ID!
     content: String!
+}
+
+input CommentsWhere {
+    postId: ID!
 }
