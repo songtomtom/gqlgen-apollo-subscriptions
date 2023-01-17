@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dgryski/trifles/uuid"
@@ -53,8 +52,18 @@ func (r *queryResolver) Comments(ctx context.Context, where model.CommentsWhere)
 }
 
 // CommentAdded is the resolver for the commentAdded field.
-func (r *subscriptionResolver) CommentAdded(ctx context.Context) (<-chan *model.Comment, error) {
-	panic(fmt.Errorf("not implemented: CommentAdded - commentAdded"))
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, input model.AddedCommentInput) (<-chan *model.Comment, error) {
+
+	ch := make(chan *model.Comment)
+
+	go func() {
+		<-ctx.Done()
+		delete(r.Observer, input.PostID)
+	}()
+
+	r.Observer[input.PostID] = ch
+
+	return ch, nil
 }
 
 // Mutation returns MutationResolver implementation.

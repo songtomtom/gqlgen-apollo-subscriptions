@@ -2,6 +2,10 @@
 
 package model
 
+type AddedCommentInput struct {
+	PostID string `json:"postId"`
+}
+
 type Comment struct {
 	ID      string `json:"id"`
 	PostID  string `json:"postId"`

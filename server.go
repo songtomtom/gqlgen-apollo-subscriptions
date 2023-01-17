@@ -18,6 +18,8 @@ import (
 
 const defaultPort = "8080"
 
+var observer map[string]chan *model.Comment
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -40,28 +42,47 @@ func main() {
 		AllowedOrigins: []string{"*"},
 	})
 
+	observer = map[string]chan *model.Comment{}
+
 	mux := http.NewServeMux()
 
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	mux.HandleFunc("/query", query(db))
-	mux.HandleFunc("/subscriptions", subscription(db))
+	mux.HandleFunc("/query", query(db, observer))
+	mux.HandleFunc("/subscriptions", subscription(db, observer))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, c.Handler(mux)))
 }
 
-func query(db *gorm.DB) http.HandlerFunc {
+func query(db *gorm.DB, observer map[string]chan *model.Comment) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		server := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{DB: db}}))
-		server.ServeHTTP(w, r)
+		srv := handler.NewDefaultServer(
+			graph.NewExecutableSchema(
+				graph.Config{
+					Resolvers: &graph.Resolver{
+						DB:       db,
+						Observer: observer,
+					},
+				},
+			),
+		)
+		srv.ServeHTTP(w, r)
 	}
-
 }
 
-func subscription(db *gorm.DB) http.HandlerFunc {
+func subscription(db *gorm.DB, observer map[string]chan *model.Comment) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		server := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{DB: db}}))
-		server.AddTransport( // <---- This is the important part!
+		srv := handler.New(
+			graph.NewExecutableSchema(
+				graph.Config{
+					Resolvers: &graph.Resolver{
+						DB:       db,
+						Observer: observer,
+					},
+				},
+			),
+		)
+		srv.AddTransport( // <---- This is the important part!
 			&transport.Websocket{
 				Upgrader: websocket.Upgrader{
 					CheckOrigin: func(r *http.Request) bool {
@@ -72,6 +93,6 @@ func subscription(db *gorm.DB) http.HandlerFunc {
 				},
 			},
 		)
-		server.ServeHTTP(w, r)
+		srv.ServeHTTP(w, r)
 	}
 }

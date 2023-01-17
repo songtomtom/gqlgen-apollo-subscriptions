@@ -9,16 +9,17 @@ type Comment {
 }
 
 type Query {
-    comments(where:CommentsWhere!): [Comment]!
+    comments(where: CommentsWhere!): [Comment]!
 }
 
 type Mutation {
-    createPost(input: CreatePostInput!):Post! # 수정
+    createPost(input: CreatePostInput!): Post! # 수정
     createComment(input: CreateCommentInput!): Comment!
 }
 
 type Subscription {
-    commentAdded:Comment!
+    # AddedCommentInput 추가
+    commentAdded(input: AddedCommentInput!): Comment!
 }
 
 input CreatePostInput{ # 추가
@@ -28,6 +29,10 @@ input CreatePostInput{ # 추가
 input CreateCommentInput{
     postId: ID!
     content: String!
+}
+
+input AddedCommentInput{
+    postId: ID!
 }
 
 input CommentsWhere {
