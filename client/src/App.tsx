@@ -1,8 +1,7 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import './App.css';
-
 
 const CREATE_POST = gql`
   mutation CreatePost($input: CreatePostInput!) {
@@ -32,6 +31,16 @@ const LIST_COMMENTS = gql`
   }
 `;
 
+const COMMENTS_SUBSCRIPTION = gql`
+  subscription OnCommentAdded($input: AddedCommentInput!) {
+    commentAdded(input: $input) {
+      id
+      postId
+      content
+    }
+  }
+`;
+
 function App() {
   const [id, setId] = useState<string>('songtomtom');
   const [content, setContent] = useState<string>('Hello~!');
@@ -42,11 +51,10 @@ function App() {
   const [createComment] = useMutation(CREATE_COMMENT, {
     variables: { input: { postId: id, content } },
   });
-  const { data, loading } = useQuery(LIST_COMMENTS, {
+  // subscribeToMore 추가
+  const { data, loading, subscribeToMore } = useQuery(LIST_COMMENTS, {
     variables: { where: { postId: id } },
   });
-
-  // console.log('comments: ', data.comments);
 
   const onClickCreatePost = async () => {
     const { data } = await createPost();
@@ -69,6 +77,30 @@ function App() {
   const onChangeContent = (e: ChangeEvent<HTMLInputElement>) => {
     setContent(e.target.value);
   };
+
+  const subscribeToNewComment = () => {
+    return subscribeToMore({
+      document: COMMENTS_SUBSCRIPTION,
+      variables: {
+        input: {
+          postId: id,
+        },
+      },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) {
+          return prev;
+        }
+        const {
+          data: { commentAdded: newComment },
+        } = subscriptionData;
+        return Object.assign({}, prev, {
+          comments: [newComment, ...prev.comments],
+        });
+      },
+    });
+  };
+
+  useEffect(() => subscribeToNewComment(), []);
 
   return (
     <div>

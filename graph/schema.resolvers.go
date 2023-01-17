@@ -37,6 +37,10 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.Create
 	}
 	r.DB.Create(comment)
 
+	for _, o := range r.Observer {
+		o <- &comment
+	}
+
 	return &comment, nil
 }
 
