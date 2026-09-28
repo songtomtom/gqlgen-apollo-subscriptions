@@ -1,37 +1,47 @@
+# 게시물. 예제를 단순하게 유지하기 위해 id 만 가진다.
 type Post {
     id: ID!
 }
 
+# 게시물에 달린 댓글.
 type Comment {
     id: ID!
     postId: ID!
     content: String!
 }
 
+# 1편에서 구독 동작을 확인하는 데 쓰는 현재 시각.
+type Time {
+    unixTime: Int!
+    timeStamp: String!
+}
+
 type Query {
-    comments(where: CommentsWhere!): [Comment]!
+    comments(where: CommentsWhere!): [Comment!]!
 }
 
 type Mutation {
-    createPost(input: CreatePostInput!): Post! # 수정
+    createPost(input: CreatePostInput!): Post!
     createComment(input: CreateCommentInput!): Comment!
 }
 
 type Subscription {
-    # AddedCommentInput 추가
+    # 1초마다 서버 시각을 보낸다. 구독 배관이 살아 있는지 확인하는 용도.
+    currentTime: Time!
+    # postId 에 새 댓글이 달릴 때마다 그 댓글을 보낸다.
     commentAdded(input: AddedCommentInput!): Comment!
 }
 
-input CreatePostInput{ # 추가
+input CreatePostInput {
     id: ID!
 }
 
-input CreateCommentInput{
+input CreateCommentInput {
     postId: ID!
     content: String!
 }
 
-input AddedCommentInput{
+input AddedCommentInput {
     postId: ID!
 }
 

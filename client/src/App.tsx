@@ -100,7 +100,10 @@ function App() {
     });
   };
 
-  useEffect(() => subscribeToNewComment(), []);
+  // id 가 바뀌면 이전 postId 구독을 해제하고 새 postId 로 다시 구독한다.
+  // subscribeToMore 가 돌려주는 함수가 구독 해제 함수라서 그대로 cleanup 으로 쓴다.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => subscribeToNewComment(), [id]);
 
   return (
     <div>

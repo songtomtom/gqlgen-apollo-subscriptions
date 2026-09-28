@@ -25,6 +25,20 @@ type CreatePostInput struct {
 	ID string `json:"id"`
 }
 
+type Mutation struct {
+}
+
 type Post struct {
 	ID string `json:"id"`
+}
+
+type Query struct {
+}
+
+type Subscription struct {
+}
+
+type Time struct {
+	UnixTime  int    `json:"unixTime"`
+	TimeStamp string `json:"timeStamp"`
 }
